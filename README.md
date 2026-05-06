@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+AI Content Transformer: Agentic Workflow Integration
+A high-performance, full-stack AI application that leverages Next.js 14 and n8n to perform intelligent content transformations (summarization, social media formatting, and text simplification).
 
-## Getting Started
+🏗️ Architecture Overview
+This project follows a decoupled architecture to separate the user interface from the complex AI orchestration logic.
 
-First, run the development server:
+Frontend: Next.js (App Router) with Tailwind CSS for a responsive, "agentic" UI.
 
-```bash
+Orchestration Layer: n8n (Autonomous Agent Workflow) to manage LLM chaining and memory.
+
+API Layer: Next.js Route Handlers act as a secure proxy to the n8n webhook, protecting internal workflow URLs and managing CORS.
+
+Why this Architecture?
+Rapid Iteration: By using n8n for the backend logic, I can update the AI's system prompt, swap LLM models (e.g., from GPT-4 to Claude), or add tools (like web scraping) in real-time without redeploying the frontend.
+
+Maintainability: The frontend remains "dumb" and focused on UX, while the complex state management and prompt engineering are handled by a dedicated orchestration tool.
+
+State Management: Leveraging n8n's Window Buffer Memory allows for persistent conversation context across sessions without manual database management in the Next.js layer.
+
+🚀 Features
+Multi-Action Processing: Specialized logic for summarization, tweet generation, and audience-specific rewriting.
+
+Real-time Agentic Feedback: UI reflects the "Thinking" state of the backend agent.
+
+Security First: API calls are proxied through a server-side route to prevent leaking the orchestration endpoint.
+
+Adaptive Error Handling: Graceful handling of empty states and backend connection timeouts.
+
+🛠️ Tech Stack
+Framework: Next.js 14
+
+Styling: Tailwind CSS
+
+Icons: Lucide React
+
+Orchestration: n8n
+
+AI Model: OpenAI GPT-4o (via n8n)
+
+🚦 Getting Started
+Prerequisites
+Node.js 18+
+
+An active n8n workflow with a published webhook.
+
+Installation
+Clone the repository.
+
+Install dependencies:
+
+npm install
+Configure your environment variables in .env.local:
+
+Code snippet
+   N8N_WEBHOOK_URL=https://your-instance.n8n.cloud/webhook/content-transform
+Run the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🧠 Technical Decisions & Challenges
+The "Silent" Handshake
+One challenge was ensuring the n8n Agent node correctly mapped incoming JSON variables. I implemented a robust Expression-based System Prompt in n8n that utilizes null-coalescing logic ({{ $json.body?.text || $json.text }}) to ensure the agent remains functional regardless of the payload structure.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+UX for Latency
+AI transformations have inherent latency. I implemented a CSS-based bounce-loader and disabled action buttons during the "pending" state to prevent race conditions and improve perceived performance.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🔮 Future Improvements
+Streaming Responses: Implementing Server-Sent Events (SSE) for real-time word-by-word AI streaming.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+URL Tooling: Integrating an HTTP Request tool in n8n to allow the agent to scrape and transform live web links.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Multi-Modal Support: Allowing users to upload images of text for OCR processing before transformation.

@@ -1,0 +1,177 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-transform",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b82dda3a-002b-4966-8b61-d3b2112207cf",
+      "name": "Webhook",
+      "webhookId": "d4d9394a-9a56-435c-a51f-751704da4a87"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=The text to process is: {{ $json.body?.text || $json.text || \"Missing Text\" }}\nThe action to take is: {{ $json.body?.action || $json.action || \"summarize\" }}\n\n### Instructions\nYou are a content transformation engine. Based on the \"action\" provided above, transform the \"text\" as follows:\n- If action is 'summarize': Write a 2-sentence summary.\n- If action is 'tweet': Write a catchy tweet under 280 characters with one emoji.\n- If action is 'rewrite': Rewrite it for a 10-year-old.\n\n### Constraints\n- If the text says \"Missing Text\", respond with \"Error: No text provided.\"\n- Output ONLY the result. \n- Do NOT include any introductory text like \"Here is your tweet.\"",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "708d8971-437c-448b-ba43-8e58ec4b8e4c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "10de978f-6395-4332-b1f1-3e9bd6dd6a14",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "12345"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "306afa33-ca95-4635-9275-c9aa20b45fe8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        528,
+        0
+      ],
+      "id": "ee661930-5a8b-42f7-9d52-04ec3df1ec54",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $node[\"AI Agent\"].parameter[\"text\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        144
+      ],
+      "id": "0bd330e4-b767-4d62-820b-f29aeb6ab84e",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1f55ffa1-0058-4497-b231-07fce836386c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52262ac8a18f163561219ffc2baf2de52cdbb62e91882344bcb2497ef09f81b8"
+  },
+  "id": "72X4nTmUStdi9BRA",
+  "tags": []
+}
