@@ -49,7 +49,7 @@ export default function Home() {
         {/* Input Area */}
         <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
           <textarea
-            className="w-full bg-transparent border-none focus:ring-0 text-lg resize-none placeholder:text-slate-600"
+            className="w-full bg-transparent border-none focus:ring-0 text-[16px] md:text-lg resize-none outline-none placeholder:text-slate-600"
             rows={6}
             placeholder="Paste text or a URL here..."
             value={input}
