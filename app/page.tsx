@@ -10,29 +10,38 @@ export default function Home() {
   const [activeAction, setActiveAction] = useState("");
 
   const handleTransform = async (action: string) => {
-    if (!input) return;
+  if (!input) return;
+  
+  setLoading(true);
+  setActiveAction(action);
+  setResult("");
+
+  try {
+    const response = await fetch("/api/transform", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // 1. Updated payload keys to match what our new API route reads
+      body: JSON.stringify({ 
+        rawContent: input, 
+        targetPlatform: action 
+      }),
+    });
+
+    const data = await response.json();
     
-    setLoading(true);
-    setActiveAction(action);
-    setResult("");
-
-    try {
-      const response = await fetch("/api/transform", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input, action: action }),
-      });
-
-      const data = await response.json();
-      // Adjusting based on n8n's output structure
-      setResult(data.output || data.text || "No response from agent.");
-    } catch (error) {
-      setResult("Error connecting to the AI agent.");
-    } finally {
-      setLoading(false);
-      setActiveAction("");
+    // 2. Updated to target the clean 'transformedContent' property returned by our new route
+    if (response.ok) {
+      setResult(data.transformedContent);
+    } else {
+      setResult(data.error || "Something went wrong on the server.");
     }
-  };
+  } catch (error) {
+    setResult("Error connecting to the AI agent.");
+  } finally {
+    setLoading(false);
+    setActiveAction("");
+  }
+};
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-8 flex flex-col items-center">
